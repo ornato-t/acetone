@@ -1,1 +1,4 @@
-console.log('Hello world')
+import { compareImage } from './image';
+
+const res = await compareImage('');
+console.log(res);
