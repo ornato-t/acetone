@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { Client, GatewayIntentBits, Message, Partials } from "discord.js";
-import { isTarget } from './image';
+import { Client, GatewayIntentBits, Message, PartialUser, Partials, User } from "discord.js";
+import { isTarget } from './image.js';
 
 const TOLERANCE = 0.15;
 const testRegex = /<:\S+:[0-9]{19}>/;
@@ -31,28 +31,30 @@ client.on('messageCreate', async (message) => {
     }
 
     async function moderate(message: Message) {
-        await message.delete(); //Delete cringe message
+        console.log(`Removing message from ${message.author.displayName}:\n\t${message.content}`);
 
+        await message.delete(); //Delete cringe message
         await message.author.send(`### Nail polish emoji detected, message removed:\n > ${message.content}`);   // Send a DM to the cringe user
     }
 });
 
 //Remove forbidden emoji
-client.on('messageReactionAdd', async (react) => {
+client.on('messageReactionAdd', async (react, user) => {
     const id = react.emoji.id;
     const name = react.emoji.name ?? '';
 
     if (id && await isTarget(id, TOLERANCE)) {   //Custom emoji
-        removeReaction(id);
+        removeReaction(id, user);
 
     } else if (emojiRegex.test(name)) {    //Unicode emoji
-        removeReaction(name);
+        removeReaction(name, user);
 
     }
 
-    function removeReaction(emoji: string) {
-        const reactions = react.message.reactions.cache.get(emoji);
+    function removeReaction(emoji: string, user: User | PartialUser) {
+        console.log(`Removing reaction added by ${user.displayName}:\n\t${emoji}`);
 
+        const reactions = react.message.reactions.cache.get(emoji);
         if (!reactions) return;
 
         reactions.remove();

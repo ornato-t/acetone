@@ -4,7 +4,8 @@
   "description": "An ambitious Discord bot",
   "main": "./dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "start": "tsc && node ."
   },
   "repository": {
     "type": "git",
