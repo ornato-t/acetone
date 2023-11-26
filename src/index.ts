@@ -31,7 +31,9 @@ client.on('messageCreate', async (message) => {
     }
 
     async function moderate(message: Message) {
-        console.log('Delete this:', message.id)
+        await message.delete(); //Delete cringe message
+
+        await message.author.send(`### Nail polish emoji detected, message removed:\n > ${message.content}`);   // Send a DM to the cringe user
     }
 });
 
