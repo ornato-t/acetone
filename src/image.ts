@@ -1,25 +1,24 @@
 import jimp from "jimp";
 import sharp from 'sharp';
+import imageList from './imageList.js';
 
-const SOURCE_URL = 'https://cdn.discordapp.com/emojis/1178086838561407148.webp?size=96';
-const SOURCE_IMAGE = await read(SOURCE_URL);
+const IMAGES = new Array<jimp>;
+for (const image of imageList) {
+    const res = await read(image.path);
+    IMAGES.push(res);
+}
 
 // Returns `true` if the emoji with the provided `id` matches the target below a `tolerance`, false otherwise
 export async function isTarget(id: string, tolerance: number) {
-    const url = `https://cdn.discordapp.com/emojis/${id}.webp?size=96`;
-    const match = await compareImage(url);
+    const targetUrl = `https://cdn.discordapp.com/emojis/${id}.webp?size=96`;
+    const jTargetImage = await read(targetUrl);
 
-    return match <= tolerance;
-}
+    for (const jImage of IMAGES) {
+        const match = jimp.diff(jImage, jTargetImage, .1).percent;
+        if (match <= tolerance) return true;
+    }
 
-// Compares two Jimp images, returns a percentage of the differences in decimal format (10% => 0.1)
-async function compareImage(imageUrl: string) {
-    const jimage1 = SOURCE_IMAGE;
-    const jimage2 = await read(imageUrl);
-
-    const diff = jimp.diff(jimage1, jimage2, .1);
-
-    return diff.percent;
+    return false;
 }
 
 /*
