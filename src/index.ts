@@ -5,21 +5,18 @@ import { isTarget } from './image';
 const TOLERANCE = 0.15;
 const testRegex = /<:\S+:[0-9]{19}>/;
 const extractRegex = /<:\S+:([0-9]{19})>/g;
+const emojiRegex = /💅/;
 
 const token = process.env.DISCORD_TOKEN;
 
 const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMessageReactions
-    ],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageReactions],
     partials: [Partials.Message, Partials.Reaction]
 });
 
 client.login(token);
 
+//Remove forbidden messages
 client.on('messageCreate', async (message) => {
     const content = message.content;
 
@@ -32,17 +29,28 @@ client.on('messageCreate', async (message) => {
             return;
         }
     }
+
+    async function moderate(message: Message) {
+        console.log('Delete this:', message.id)
+    }
 });
 
-async function moderate(message: Message) {
-    console.log('Delete this:', message.id)
-}
-
-client.on('messageReactionAdd', async (react, user) => {
+//Remove forbidden emoji
+client.on('messageReactionAdd', async (react) => {
     const id = react.emoji.id;
+    const name = react.emoji.name ?? '';
 
-    if (id !== null && await isTarget(id, TOLERANCE)) {
-        const reactions = react.message.reactions.cache.get(id);
+    if (id && await isTarget(id, TOLERANCE)) {   //Custom emoji
+        removeReaction(id);
+
+    } else if (emojiRegex.test(name)) {    //Unicode emoji
+        removeReaction(name);
+
+    }
+
+    function removeReaction(emoji: string) {
+        const reactions = react.message.reactions.cache.get(emoji);
+
         if (!reactions) return;
 
         reactions.remove();
