@@ -1,26 +1,37 @@
-import { compareImage } from './image';
+import 'dotenv/config';
+import { Client, GatewayIntentBits, Message } from "discord.js";
+import { isTarget } from './image';
 
-const list = await getEmojiList();
-for (const emoji of list) {
-    console.log(await isTarget(emoji.path, 0.15), '\t', emoji.name);
-}
+const TOLERANCE = 0.15;
+const testRegex = /<:\S+:[0-9]{19}>/;
+const extractRegex = /<:\S+:([0-9]{19})>/g;
 
-async function getEmojiList() {
-    const res = await fetch("https://discord.com/api/guilds/SERVER_ID/emojis?limit=1000", {
-        headers: {
-            Authorization: "Bot TOKEN",
+const token = process.env.DISCORD_TOKEN;
+
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ],
+});
+
+client.login(token);
+
+client.on('messageCreate', async (message) => {
+    const content = message.content;
+
+    if (!testRegex.test(content)) return;   //Check if the message contains any emoji
+    const emoji = Array.from(content.matchAll(extractRegex), m => m[1]);    //Extract the ids of all emoji in the message
+
+    for (const entry of emoji) {
+        if (await isTarget(entry, TOLERANCE)) {
+            await moderate(message);
+            return;
         }
-    });
+    }
+});
 
-    const json = await res.json() as { id: string, name: string }[];
-
-    return json.map(emoji => ({ name: emoji.name, path: emoji.id }))
-}
-
-
-async function isTarget(id: string, tolerance: number) {
-    const url = `https://cdn.discordapp.com/emojis/${id}.webp?size=96`;
-    const match = await compareImage(url);
-
-    return match <= tolerance;
+async function moderate(message: Message) {
+    console.log('Delete this:', message.id)
 }

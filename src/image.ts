@@ -4,7 +4,16 @@ import sharp from 'sharp';
 const SOURCE_URL = 'https://cdn.discordapp.com/emojis/1178086838561407148.webp?size=96';
 const SOURCE_IMAGE = await read(SOURCE_URL);
 
-export async function compareImage(imageUrl: string) {
+// Returns `true` if the emoji with the provided `id` matches the target below a `tolerance`, false otherwise
+export async function isTarget(id: string, tolerance: number) {
+    const url = `https://cdn.discordapp.com/emojis/${id}.webp?size=96`;
+    const match = await compareImage(url);
+
+    return match <= tolerance;
+}
+
+// Compares two Jimp images, returns a percentage of the differences in decimal format (10% => 0.1)
+async function compareImage(imageUrl: string) {
     const jimage1 = SOURCE_IMAGE;
     const jimage2 = await read(imageUrl);
 
