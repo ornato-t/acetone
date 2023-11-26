@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Client, GatewayIntentBits, Message } from "discord.js";
+import { Client, GatewayIntentBits, Message, Partials } from "discord.js";
 import { isTarget } from './image';
 
 const TOLERANCE = 0.15;
@@ -13,7 +13,9 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions
     ],
+    partials: [Partials.Message, Partials.Reaction]
 });
 
 client.login(token);
@@ -35,3 +37,14 @@ client.on('messageCreate', async (message) => {
 async function moderate(message: Message) {
     console.log('Delete this:', message.id)
 }
+
+client.on('messageReactionAdd', async (react, user) => {
+    const id = react.emoji.id;
+
+    if (id !== null && await isTarget(id, TOLERANCE)) {
+        const reactions = react.message.reactions.cache.get(id);
+        if (!reactions) return;
+
+        reactions.remove();
+    }
+});
