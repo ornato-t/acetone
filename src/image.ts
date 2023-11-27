@@ -1,6 +1,6 @@
 import jimp from "jimp";
 import sharp from 'sharp';
-import { emojiList, Emoji } from './imageList.js';
+import { emojiList, Emoji, getEmojiUrl } from './imageList.js';
 
 const IMAGES = new Array<EmojiImage>;
 for (const image of emojiList) {
@@ -10,22 +10,35 @@ for (const image of emojiList) {
 
 // Returns `true` if the emoji with the provided `id` matches the target below a `tolerance`, false otherwise
 export async function isTarget(id: string, tolerance: number) {
-    const targetUrl = `https://cdn.discordapp.com/emojis/${id}.webp?size=96`;
-    const jTargetImage = await read(targetUrl);
+    const jTargetImage = await read(getEmojiUrl(id));
 
     let bestMatch: EmojiImage = IMAGES[0];
     for (const image of IMAGES) {
-        const match = jimp.diff(image.jimp, jTargetImage, .1).percent;
+        const match = test(image.jimp, jTargetImage);
         
-        if (match < bestMatch.match) {
-            bestMatch = image;
-            bestMatch.match = match;
-        }
+        if (match < bestMatch.match) bestMatch = { ...image, match };
 
         if (match <= tolerance) return { result: true, bestMatch };
     }
 
     return { result: false, bestMatch };
+}
+
+/**
+ * Parses an image and its variations, and returns its closest difference
+ * 1. Flips it horizzontally 
+ * 2. Computes a difference, returns the smallest difference available 
+ * 
+ * @param image image in the jimp format
+ */
+function test(source: jimp, target: jimp) {
+    const match = jimp.diff(source, target, .1).percent;
+    
+    target.mirror(true, false);
+    const matchFlipped = jimp.diff(source, target, .1).percent;
+
+    if (match < matchFlipped) return match;
+    return matchFlipped;
 }
 
 /*
@@ -34,7 +47,7 @@ export async function isTarget(id: string, tolerance: number) {
     2. Extracts it
     3. Converts it to PNG through Sharp (so Jimp can digest it)
     4. Converts it to a Jimp image
-    5. Passes it through a grayscale 
+    5. Passes it through a greyscale
 */
 async function read(url: string) {
     const res = await fetch(url);

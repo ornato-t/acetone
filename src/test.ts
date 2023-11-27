@@ -1,8 +1,9 @@
 import 'dotenv/config';
 import { isTarget } from "./image.js";
 import { TOLERANCE } from "./index.js";
+import { getEmojiUrl } from './imageList.js';
 
-await test('931407728000237588');
+await test('1178489718447550494');
 await testEmoji();
 
 process.exit(0);
@@ -11,7 +12,7 @@ process.exit(0);
 async function test(id: string) {
     const res = await isTarget(id, TOLERANCE);
 
-    console.log(`Test: ${res.result}, closest match found: ${res.bestMatch.name} with a ${(res.bestMatch.match * 100).toFixed(2)}% match`);
+    console.log(`Test: ${res.result}, closest match found: ${res.bestMatch.name} with a ${(res.bestMatch.match * 100).toFixed(2)}% match\n\tLink: ${getEmojiUrl(id)}\n`);
 }
 
 //Test the entire emoji library against the Acetone Detection Algorithm, prints any positive matches
@@ -21,9 +22,9 @@ async function testEmoji() {
     });
     const emojiList = await res.json() as { id: string, name: string }[];
 
-    for(const emoji of emojiList) {
+    for (const emoji of emojiList) {
         const testResult = await isTarget(emoji.id, TOLERANCE);
-        if(true || testResult.result) {
+        if (testResult.result) {
             console.warn(`Emoji ${emoji.name} matches: ${testResult.result}, closest match found: ${testResult.bestMatch.name} with a ${(testResult.bestMatch.match * 100).toFixed(2)}% match`);
         }
     }
