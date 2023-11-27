@@ -24,7 +24,7 @@ client.on('messageCreate', async (message) => {
     const emoji = Array.from(content.matchAll(extractRegex), m => m[1]);    //Extract the ids of all emoji in the message
 
     for (const entry of emoji) {
-        if (await isTarget(entry, TOLERANCE)) {
+        if ((await isTarget(entry, TOLERANCE)).result) {
             await moderate(message);
             return;
         }
@@ -43,7 +43,7 @@ client.on('messageReactionAdd', async (react, user) => {
     const id = react.emoji.id;
     const name = react.emoji.name ?? '';
 
-    if (id && await isTarget(id, TOLERANCE)) {   //Custom emoji
+    if (id && (await isTarget(id, TOLERANCE)).result) {   //Custom emoji
         removeReaction(id, user);
 
     } else if (emojiRegex.test(name)) {    //Unicode emoji

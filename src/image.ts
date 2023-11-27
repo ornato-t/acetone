@@ -1,11 +1,11 @@
 import jimp from "jimp";
 import sharp from 'sharp';
-import imageList from './imageList.js';
+import { emojiList, Emoji } from './imageList.js';
 
-const IMAGES = new Array<jimp>;
-for (const image of imageList) {
+const IMAGES = new Array<EmojiImage>;
+for (const image of emojiList) {
     const res = await read(image.path);
-    IMAGES.push(res);
+    IMAGES.push({ jimp: res, name: image.name, path: image.path, match: 999 });
 }
 
 // Returns `true` if the emoji with the provided `id` matches the target below a `tolerance`, false otherwise
@@ -13,12 +13,19 @@ export async function isTarget(id: string, tolerance: number) {
     const targetUrl = `https://cdn.discordapp.com/emojis/${id}.webp?size=96`;
     const jTargetImage = await read(targetUrl);
 
-    for (const jImage of IMAGES) {
-        const match = jimp.diff(jImage, jTargetImage, .1).percent;
-        if (match <= tolerance) return true;
+    let bestMatch: EmojiImage = IMAGES[0];
+    for (const image of IMAGES) {
+        const match = jimp.diff(image.jimp, jTargetImage, .1).percent;
+        
+        if (match < bestMatch.match) {
+            bestMatch = image;
+            bestMatch.match = match;
+        }
+
+        if (match <= tolerance) return { result: true, bestMatch };
     }
 
-    return false;
+    return { result: false, bestMatch };
 }
 
 /*
@@ -35,4 +42,9 @@ async function read(url: string) {
     const bufferPng = await sharp(bufferWebp).toFormat('png').toBuffer();
     const jimpImage = await jimp.read(bufferPng);
     return jimpImage.greyscale();
+}
+
+interface EmojiImage extends Emoji {
+    jimp: jimp;
+    match: number;
 }
