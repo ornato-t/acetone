@@ -4,13 +4,12 @@ const emojiList = [
         path: getUrl('1178086838561407148'),
     },
     {
-        name: 'Reversed nail care',
-        path: getUrl('1178439074726559795'),
-
-    },
-    {
         name: 'Blood nail care',
         path: getUrl('1178447641642811502'),
+    },
+    {
+        name: 'Baddie nails',
+        path: getUrl('1178489718447550494'),
     },
 ] satisfies Emoji[];
 
