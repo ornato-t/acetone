@@ -1,16 +1,20 @@
 export const emojiList = [
     {
-        name: 'Nail care',
+        name: 'nail care',
         path: getEmojiUrl('1178086838561407148'),
     },
     {
-        name: 'Blood nail care',
+        name: 'blood nail care',
         path: getEmojiUrl('1178447641642811502'),
     },
     {
-        name: 'Baddie nails',
+        name: 'baddie nails',
         path: getEmojiUrl('1178489718447550494'),
     },
+    {
+        name: 'emboss care',
+        path: getEmojiUrl('1180048622927228928'),
+    }
 ] satisfies Emoji[];
 
 export interface Emoji {

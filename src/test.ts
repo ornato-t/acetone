@@ -3,7 +3,7 @@ import { isTarget } from "./image.js";
 import { TOLERANCE } from "./index.js";
 import { getEmojiUrl } from './imageList.js';
 
-await test('1157457686225506414');
+await test('1180048622927228928');
 await testEmoji();
 
 process.exit(0);
