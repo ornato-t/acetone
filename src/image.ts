@@ -10,9 +10,25 @@ for (const image of emojiList) {
 }
 
 // Returns `true` if the emoji with the provided `id` matches the target below a `tolerance`, false otherwise
-export async function isTarget(id: string, tolerance: number) {
+export async function testEmoji(id: string, tolerance: number) {
     if (whitelist.includes(id)) return { result: false, bestMatch: null };
     const jTargetImage = await read(getEmojiUrl(id));
+
+    let bestMatch: EmojiImage = IMAGES[0];
+    for (const image of IMAGES) {
+        const match = test(image.jimp, jTargetImage);
+
+        if (match < bestMatch.match) bestMatch = { ...image, match };
+
+        if (match <= tolerance) return { result: true, bestMatch };
+    }
+
+    return { result: false, bestMatch };
+}
+
+// Returns `true` if the image with the provided `url` matches the target below a `tolerance`, false otherwise
+export async function testImage(url: string, tolerance: number) {
+    const jTargetImage = await read(url);
 
     let bestMatch: EmojiImage = IMAGES[0];
     for (const image of IMAGES) {
