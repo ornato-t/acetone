@@ -31,23 +31,23 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    for (const embed of message.embeds) {
-        const image = embed.thumbnail;
+    // for (const embed of message.embeds) {
+    //     const image = embed.thumbnail;
 
-        if (image && (await testImage(image.url, TOLERANCE)).result) {
-            await moderateImage(message, image.url, true);
-            return;
-        }
-    }
+    //     if (image && (await testImage(image.url, TOLERANCE)).result) {
+    //         await moderateImage(message, image.url, true);
+    //         return;
+    //     }
+    // }
 
-    for (const [_, attachment] of message.attachments) {
-        const image = attachment.proxyURL;
+    // for (const [_, attachment] of message.attachments) {
+    //     const image = attachment.proxyURL;
 
-        if ((await testImage(image, TOLERANCE)).result) {
-            await moderateImage(message, image, false);
-            return;
-        }
-    }
+    //     if ((await testImage(image, TOLERANCE)).result) {
+    //         await moderateImage(message, image, false);
+    //         return;
+    //     }
+    // }
 
 
     async function moderateEmoji(message: Message) {
