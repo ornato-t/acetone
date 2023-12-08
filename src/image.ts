@@ -75,7 +75,7 @@ async function read(url: string) {
     return jimpImage.greyscale();
 }
 
-interface EmojiImage extends Emoji {
+export interface EmojiImage extends Emoji {
     jimp: jimp;
     match: number;
 }

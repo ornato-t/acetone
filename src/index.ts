@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits, Message, PartialUser, Partials, User } from "discord.js";
-import { testEmoji, testImage } from './image.js';
+import { testEmoji, testImage, EmojiImage } from './image.js';
 
 export const TOLERANCE = 0.18;
 const testRegex = /<:\S+:[0-9]{19}>/;
@@ -24,8 +24,9 @@ client.on('messageCreate', async (message) => {
         const emoji = Array.from(content.matchAll(extractRegex), m => m[1]);    //Extract the ids of all emoji in the message
 
         for (const entry of emoji) {
-            if ((await testEmoji(entry, TOLERANCE)).result) {
-                await moderateEmoji(message);
+            const test = await testEmoji(entry, TOLERANCE);
+            if (test.result) {
+                await moderateEmoji(message, test.bestMatch?.name ?? 'nail care');
                 return;
             }
         }
@@ -50,8 +51,8 @@ client.on('messageCreate', async (message) => {
     // }
 
 
-    async function moderateEmoji(message: Message) {
-        console.log(`Removing message from ${message.author.displayName}:\n\t${message.content}`);
+    async function moderateEmoji(message: Message, matchedEmojiName: string) {
+        console.log(`Removing message from ${message.author.displayName}:\n\t${message.content} matches ${matchedEmojiName}`);
 
         await message.delete(); //Delete cringe message
         await message.author.send(`### Nail polish emoji detected, message removed:\n > ${message.content}`);   // Send a DM to the cringe user
@@ -77,16 +78,18 @@ client.on('messageReactionAdd', async (react, user) => {
     const id = react.emoji.id;
     const name = react.emoji.name ?? '';
 
-    if (id && (await testEmoji(id, TOLERANCE)).result) {   //Custom emoji
-        removeReaction(id, user);
+    if (id) {   //Custom emoji
+        const test = await testEmoji(id, TOLERANCE)
+
+        if (test.result) removeReaction(id, user, test.bestMatch?.name ?? 'nail care');
 
     } else if (emojiRegex.test(name)) {    //Unicode emoji
-        removeReaction(name, user);
+        removeReaction(name, user, 'nail care');
 
     }
 
-    function removeReaction(emoji: string, user: User | PartialUser) {
-        console.log(`Removing reaction added by ${user.displayName}:\n\t${emoji}`);
+    function removeReaction(emoji: string, user: User | PartialUser, matchedEmojiName: string) {
+        console.log(`Removing reaction added by ${user.displayName}:\n\t${emoji} matches ${matchedEmojiName}`);
 
         const reactions = react.message.reactions.cache.get(emoji);
         if (!reactions) return;
