@@ -19,6 +19,10 @@ export const emojiList = [
         name: 'blue inverted care',
         path: getEmojiUrl('1180961946950975592'),
     },
+    {
+        name: 'deep fried care',
+        path: getEmojiUrl('1182789163154677770'),
+    },
     // {
     //     name: 'purple nails',
     //     path: 'https://cdn.discordapp.com/attachments/826405737093136437/1180891781173346344/Nail_Polish_Emoji_Icon_ios10_grande.png',
