@@ -72,7 +72,7 @@ async function read(url: string) {
     const bufferWebp = await res.arrayBuffer();
     const bufferPng = await sharp(bufferWebp).toFormat('png').toBuffer();
     const jimpImage = await jimp.read(bufferPng);
-    return jimpImage.greyscale();
+    return jimpImage.greyscale();   //TODO: instead of greyscale, mask
 }
 
 export interface EmojiImage extends Emoji {
