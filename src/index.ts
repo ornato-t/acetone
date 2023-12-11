@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { Client, GatewayIntentBits, Message, PartialUser, Partials, User } from "discord.js";
 import { testEmoji } from './image.js';
 
-export const TOLERANCE = 0.18;
+export const TOLERANCE = 0.005; //0.50%
 const testRegex = /<:\S+:[0-9]{19}>/;
 const extractRegex = /<:\S+:([0-9]{19})>/g;
 const emojiRegex = /💅/;

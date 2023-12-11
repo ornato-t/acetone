@@ -58,11 +58,25 @@ async function read(url: string) {
     const bufferWebp = await res.arrayBuffer();
     const bufferPng = await sharp(bufferWebp).toFormat('png').toBuffer();
     const jimpImage = await jimp.read(bufferPng);
+    const mask = new jimp(jimpImage.bitmap.width, jimpImage.bitmap.height);
+
+    // Iterate over each pixel
+    jimpImage.scan(0, 0, jimpImage.bitmap.width, jimpImage.bitmap.height, function (x, y, idx) {
+        const alpha = this.bitmap.data[idx + 3];
+
+        // If the pixel is transparent, set it to transparent; otherwise, set it to black
+        mask.setPixelColor(alpha === 0 ? jimp.rgbaToInt(0, 0, 0, 0) : jimp.rgbaToInt(0, 0, 0, 255), x, y);
+    });
 
     // Save the image to a file (only in development mode)
-    if (TEST) await jimpImage.writeAsync(`./images/${new URL(url).pathname.split('/').pop()}.png`);
+    if (TEST) {
+        const match = url.match(/https?:\/\/.+\/(.+)\.(?:gif|jpe?g|tiff?|png|webp|bmp)/);
+        const fileName = match !== null ? match[1] ?? 'image' : 'image';
 
-    return jimpImage;
+        await mask.writeAsync(`./images/${fileName}.png`);
+    }
+
+    return mask;
 }
 
 export interface EmojiImage extends Emoji {

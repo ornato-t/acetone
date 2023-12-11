@@ -4,7 +4,7 @@ import { TOLERANCE } from "./index.js";
 import { getEmojiUrl } from './imageList.js';
 
 await test('1182789163154677770');
-//await emojiLibraryTest();
+await emojiLibraryTest();
 
 process.exit(0);
 
