@@ -32,44 +32,11 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // for (const embed of message.embeds) {
-    //     const image = embed.thumbnail;
-
-    //     if (image && (await testImage(image.url, TOLERANCE)).result) {
-    //         await moderateImage(message, image.url, true);
-    //         return;
-    //     }
-    // }
-
-    // for (const [_, attachment] of message.attachments) {
-    //     const image = attachment.proxyURL;
-
-    //     if ((await testImage(image, TOLERANCE)).result) {
-    //         await moderateImage(message, image, false);
-    //         return;
-    //     }
-    // }
-
-
     async function moderateEmoji(message: Message, matchedEmojiName: string) {
         console.log(`Removing message from ${message.author.displayName}:\n\t${message.content} matches ${matchedEmojiName}`);
 
         await message.delete(); //Delete cringe message
         await message.author.send(`### Nail polish emoji detected, message removed:\n > ${message.content}`);   // Send a DM to the cringe user
-    }
-
-    async function moderateImage(message: Message, url: string, embed: boolean) {
-        console.log(`Removing message from ${message.author.displayName}:
-            ${message.content}
-            ${!embed ? `${url}` : ''}
-        `);   // Send a DM to the cringe user
-
-
-        await message.delete(); //Delete cringe message
-        await message.author.send(`### Nail polish emoji detected, message removed:
-            ${message.content.length > 0 ? `${message.content}` : ''}
-            ${!embed ? `${url}` : ''}
-        `);   // Send a DM to the cringe user
     }
 });
 

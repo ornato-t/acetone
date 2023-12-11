@@ -26,22 +26,6 @@ export async function testEmoji(id: string, tolerance: number) {
     return { result: false, bestMatch };
 }
 
-// Returns `true` if the image with the provided `url` matches the target below a `tolerance`, false otherwise
-export async function testImage(url: string, tolerance: number) {
-    const jTargetImage = await read(url);
-
-    let bestMatch: EmojiImage = IMAGES[0];
-    for (const image of IMAGES) {
-        const match = test(image.jimp, jTargetImage);
-
-        if (match < bestMatch.match) bestMatch = { ...image, match };
-
-        if (match <= tolerance) return { result: true, bestMatch };
-    }
-
-    return { result: false, bestMatch };
-}
-
 /**
  * Parses an image and its variations, and returns its closest difference
  * 1. Flips it horizzontally 
