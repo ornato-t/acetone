@@ -4,6 +4,8 @@ import { emojiList, Emoji, getEmojiUrl } from './imageList.js';
 import { whitelist } from './whitelist.js';
 
 const IMAGES = new Array<EmojiImage>;
+const TEST = process.env.TEST === 'true';
+
 for (const image of emojiList) {
     const res = await read(image.path);
     IMAGES.push({ jimp: res, name: image.name, path: image.path, match: 999 });
@@ -56,7 +58,11 @@ async function read(url: string) {
     const bufferWebp = await res.arrayBuffer();
     const bufferPng = await sharp(bufferWebp).toFormat('png').toBuffer();
     const jimpImage = await jimp.read(bufferPng);
-    return jimpImage.greyscale();   //TODO: instead of greyscale, mask
+
+    // Save the image to a file (only in development mode)
+    if (TEST) await jimpImage.writeAsync(`./images/${new URL(url).pathname.split('/').pop()}.png`);
+
+    return jimpImage;
 }
 
 export interface EmojiImage extends Emoji {
